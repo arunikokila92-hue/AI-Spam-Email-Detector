@@ -17,7 +17,10 @@ MODEL_PATH = ROOT / "model.pkl"
 
 def load_csv(path: Path) -> pd.DataFrame:
     """Load a dataset and keep the project's common label/text columns."""
-    data = pd.read_csv(path, encoding="latin-1", on_bad_lines="skip", low_memory=False)
+    try:
+        data = pd.read_csv(path, encoding="utf-8-sig", on_bad_lines="skip", low_memory=False)
+    except UnicodeDecodeError:
+        data = pd.read_csv(path, encoding="latin-1", on_bad_lines="skip", low_memory=False)
 
     required = {"label", "text"}
     if not required.issubset(data.columns):
