@@ -1,16 +1,42 @@
-# Dataset
+# Additional Email Dataset
 
-This folder stores additional labeled spam/ham text datasets used to extend the training corpus.
+This project can train on the original `spam.csv` SMS dataset plus an additional real-email corpus.
 
-## Required CSV schema
+## Download and prepare the email corpus
 
-All additional datasets should be normalized to two columns:
+From the repository root, run:
+
+```powershell
+python dataset/download_spamassassin.py
+```
+
+The script downloads the public Apache SpamAssassin corpus archives, extracts message subject/body text, removes exact normalized duplicates, and creates:
+
+`dataset/spamassassin_emails.csv`
+
+The output schema is:
 
 - `label`: `spam` or `ham`
-- `text`: the message body
+- `text`: email subject and body text
 
-Do not upload private or personal emails. Remove email addresses, phone numbers, names, account details, and other personal information before sharing data publicly.
+The selected official corpus parts describe 6,047 messages in total: 2,500 easy ham, 250 hard ham, 1,400 easy ham 2, 500 spam, and 1,397 spam 2. The exact number written to CSV can be lower after empty-message filtering and deduplication.
 
-## Important scope note
+Official source: https://spamassassin.apache.org/old/publiccorpus/  
+Corpus description: https://spamassassin.apache.org/old/publiccorpus/readme.html
 
-The current `spam.csv` is based on SMS messages. SMS and email datasets can be combined for a general text-message spam classifier, but the project should be described accurately. For an email-specific classifier, use a labeled email corpus such as SpamAssassin and evaluate on a separate email test set.
+## Retrain the model
+
+After the CSV has been created, run:
+
+```powershell
+python train_model.py
+```
+
+The training script automatically combines `spam.csv` with `dataset/spamassassin_emails.csv` when the latter exists, removes duplicate messages, performs a stratified train/test split, prints accuracy/precision/recall/F1 metrics, and saves the refreshed `model.pkl`.
+
+## Important notes
+
+- The original `spam.csv` contains SMS messages. The additional corpus contains emails. Combining them makes this a mixed text-message spam classifier. For an email-only evaluation, evaluate separately on email messages.
+- The SpamAssassin corpus README says copyright remains with the original message senders. The generated email CSV is therefore kept local and excluded from Git by `.gitignore`; review permissions before redistributing it.
+- Never upload private emails or personal data to a public repository.
+- The SpamAssassin README explicitly warns not to send corpus emails into a live email system.
