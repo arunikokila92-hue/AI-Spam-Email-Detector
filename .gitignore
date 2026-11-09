@@ -1,0 +1,10 @@
+# Downloaded source archives and locally generated corpus files
+dataset/*.tar.bz2
+dataset/spamassassin_emails.csv
+dataset/combined_dataset.csv
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
